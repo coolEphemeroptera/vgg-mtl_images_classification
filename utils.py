@@ -36,15 +36,24 @@ def onehot(labels,n_classes):
 # 加载数据
 def loading(lst,n_classes):
     data = []
-    labels = []
+    labels1 = []
+    labels2 = []
+    labels3 = []
+
     for n,line in enumerate(lst):
-        img_path, label = line.split()
+        img_path, label1, label2, label3 = line.split()
         # img_path = path_lin2win(img_path)
-        label = onehot(int(label),n_classes)
+        label1 = onehot(int(label1), n_classes[0])
+        label2 = onehot(int(label2), n_classes[1])
+        label3 = onehot(int(label3), n_classes[2])
         data.append(read_img(img_path))
-        labels.append(label)
+        labels1.append(label1)
+        labels2.append(label2)
+        labels3.append(label3)
         # print("正在加载第 %06d 张图片：%s"%(n,img_path))
-    return {"the_inputs": np.float32(np.asarray(data))},{"the_labels":np.int32(np.asarray(labels))}
+    return {"the_inputs": np.float32(np.asarray(data))},{"task1":np.int32(np.asarray(labels1)),
+                                                         "task2":np.int32(np.asarray(labels2)),
+                                                         "task3":np.int32(np.asarray(labels3))}
 
 
 # 构造生成器
@@ -63,6 +72,6 @@ def data_generator(lst,batch_size,n_classes):
 if __name__ == "__main__":
     file = "data.train"
     lst = reading(file)
-    data,labels = next(data_generator(lst,32,105))
+    data,labels = next(data_generator(lst,32,[105,14,14]))
     exit()
 
