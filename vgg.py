@@ -28,7 +28,7 @@ def softmax(x,n_classes,name):
     return Dense(n_classes,activation='softmax',name=name)(x)
 
 # vgg_16
-def vgg_16(inputs, n_classes, scale=1):
+def vgg_16(inputs, n_classes=[], scale=1):
     # cnn-1
     x = bn(conv2d(inputs, int(64 * scale)))
     x = bn(conv2d(x, int(64 * scale)))
@@ -64,8 +64,10 @@ def vgg_16(inputs, n_classes, scale=1):
     x = dense(x, int(1000 * scale))
 
     # softmax
-    x = softmax(x,n_classes)
-    return x
+    x1 = softmax(x, n_classes[0], "task1")
+    x2 = softmax(x, n_classes[1], "task2")
+    x3 = softmax(x, n_classes[2], "task3")
+    return [x1,x2,x3]
 
 
 # vgg_11
@@ -109,7 +111,7 @@ es = EarlyStopping(verbose=1,patience=3,restore_best_weights=True)
 if __name__ == "__main__":
     # 超参数
     IMG_SIZE = (224, 224)
-    N_CLASSES = 105
+    N_CLASSES = [105,14,14]
     BATCH_SIZE = 64
     EPOCHS = 20 
     train_file = "./data.train"
@@ -130,20 +132,20 @@ if __name__ == "__main__":
     inputs = Input(name='the_inputs', shape=(IMG_SIZE[0], IMG_SIZE[1],3), dtype='float32')
 
     # 定义模型
-    model = Model(inputs=inputs, outputs=vgg_16(inputs, N_CLASSES, 0.25))
+    model = Model(inputs=inputs, outputs=vgg_16(inputs, n_classes=N_CLASSES, scale=0.25))
     model.summary()
     # opt = Adam(lr=0.01, beta_1=0.9, beta_2=0.999, decay=0.001, epsilon=10e-8) 
     opt = SGD(lr=0.01, decay=0.001, momentum=0.9, nesterov=True)
 
     # 单GPU训练
-    # model.compile(optimizer=opt,loss='categorical_crossentropy',metrics=['accuracy'])
-    # model.fit_generator(generator=train_generator,steps_per_epoch=n_batchs,epochs=EPOCHS,
-    #                     callbacks=[es],validation_data=(dev_data,dev_labels),validation_steps=n_batchs) 
+    model.compile(optimizer=opt,loss='categorical_crossentropy',metrics=['accuracy'],loss_weights=[1., 0.2,0.2])
+    model.fit_generator(generator=train_generator,steps_per_epoch=n_batchs,epochs=EPOCHS,
+                        callbacks=[es],validation_data=(dev_data,dev_labels),validation_steps=n_batchs)
 
     # 多gpu训练
-    parallel_model = multi_gpu_model(model, gpus=2)
-    parallel_model.compile(optimizer=opt,loss='categorical_crossentropy',metrics=['accuracy'])
-    parallel_model.fit_generator(generator=train_generator,steps_per_epoch=n_batchs,epochs=EPOCHS,
-                        callbacks=[es],validation_data=(dev_data,dev_labels),validation_steps=n_batchs)
+    # parallel_model = multi_gpu_model(model, gpus=2)
+    # parallel_model.compile(optimizer=opt,loss='categorical_crossentropy',metrics=['accuracy'])
+    # parallel_model.fit_generator(generator=train_generator,steps_per_epoch=n_batchs,epochs=EPOCHS,
+    #                     callbacks=[es],validation_data=(dev_data,dev_labels),validation_steps=n_batchs)
 
 
