@@ -42,7 +42,7 @@ def loading(lst,n_classes):
 
     for n,line in enumerate(lst):
         img_path, label1, label2, label3 = line.split()
-        img_path = path_lin2win(img_path)
+        # img_path = path_lin2win(img_path)
         label1 = onehot(int(label1), n_classes[0])
         label2 = onehot(int(label2), n_classes[1])
         label3 = onehot(int(label3), n_classes[2])

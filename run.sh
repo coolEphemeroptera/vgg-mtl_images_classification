@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e 
 
-data_dir="F:\徐佳明量子物理\matlab_data"
+data_dir="/disc3/ww/vgg_classification/malab_data/"
 
 # 整理数据
 bash search.sh $data_dir png > data.lst # linux
