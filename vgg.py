@@ -103,7 +103,7 @@ def vgg_11(inputs, n_classes):
 
     # softmax
     x = softmax(x, n_classes)
-    return x 
+    return x
 
 # 提前终止
 es = EarlyStopping(verbose=1,patience=3,restore_best_weights=True)
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     IMG_SIZE = (224, 224)
     N_CLASSES = [105,14,14]
     BATCH_SIZE = 64
-    EPOCHS = 20 
+    EPOCHS = 20
     train_file = "./data.train"
     dev_file = "./data.dev"
     test_file = "./data.test"
@@ -134,18 +134,18 @@ if __name__ == "__main__":
     # 定义模型
     model = Model(inputs=inputs, outputs=vgg_16(inputs, n_classes=N_CLASSES, scale=0.25))
     model.summary()
-    # opt = Adam(lr=0.01, beta_1=0.9, beta_2=0.999, decay=0.001, epsilon=10e-8) 
+    # opt = Adam(lr=0.01, beta_1=0.9, beta_2=0.999, decay=0.001, epsilon=10e-8)
     opt = SGD(lr=0.01, decay=0.001, momentum=0.9, nesterov=True)
 
     # 单GPU训练
-    model.compile(optimizer=opt,loss='categorical_crossentropy',metrics=['accuracy'],loss_weights=[1., 0.2,0.2])
-    model.fit_generator(generator=train_generator,steps_per_epoch=n_batchs,epochs=EPOCHS,
-                        callbacks=[es],validation_data=(dev_data,dev_labels),validation_steps=n_batchs)
+    # model.compile(optimizer=opt,loss='categorical_crossentropy',metrics=['accuracy'],loss_weights=[1., 0.2,0.2])
+    # model.fit_generator(generator=train_generator,steps_per_epoch=n_batchs,epochs=EPOCHS,
+    #                     callbacks=[es],validation_data=(dev_data,dev_labels),validation_steps=n_batchs)
 
     # 多gpu训练
-    # parallel_model = multi_gpu_model(model, gpus=2)
-    # parallel_model.compile(optimizer=opt,loss='categorical_crossentropy',metrics=['accuracy'])
-    # parallel_model.fit_generator(generator=train_generator,steps_per_epoch=n_batchs,epochs=EPOCHS,
-    #                     callbacks=[es],validation_data=(dev_data,dev_labels),validation_steps=n_batchs)
+    parallel_model = multi_gpu_model(model, gpus=2)
+    parallel_model.compile(optimizer=opt,loss='categorical_crossentropy',metrics=['accuracy'],loss_weights=[1., 0.2,0.2])
+    parallel_model.fit_generator(generator=train_generator,steps_per_epoch=n_batchs,epochs=EPOCHS,
+                        callbacks=[es],validation_data=(dev_data,dev_labels),validation_steps=n_batchs)
 
 
